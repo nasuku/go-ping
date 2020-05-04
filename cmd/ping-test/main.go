@@ -18,6 +18,7 @@ var (
 	proto4, proto6 bool
 	size           uint = 56
 	bind           string
+	vrf            string
 
 	destination string
 	remoteAddr  *net.IPAddr
@@ -35,6 +36,7 @@ func main() {
 	flag.UintVar(&size, "s", size, "size of additional payload data")
 	flag.BoolVar(&proto4, "4", proto4, "use IPv4 (mutually exclusive with -6)")
 	flag.BoolVar(&proto6, "6", proto6, "use IPv6 (mutually exclusive with -4)")
+	flag.StringVar(&vrf, "vrf", vrf, "VRF")
 	flag.StringVar(&bind, "bind", "", "IPv4 or IPv6 bind address (defaults to 0.0.0.0 for IPv4 and :: for IPv6)")
 	flag.Parse()
 
@@ -60,7 +62,7 @@ func main() {
 			remoteAddr = r
 		}
 
-		if p, err := ping.New(bind, ""); err != nil {
+		if p, err := ping.New(bind, "", vrf); err != nil {
 			panic(err)
 		} else {
 			pinger = p
@@ -72,7 +74,7 @@ func main() {
 			remoteAddr = r
 		}
 
-		if p, err := ping.New("", bind); err != nil {
+		if p, err := ping.New("", bind, vrf); err != nil {
 			panic(err)
 		} else {
 			pinger = p

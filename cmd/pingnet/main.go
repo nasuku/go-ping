@@ -21,6 +21,7 @@ var (
 	poolSize = 2 * runtime.NumCPU()
 	interval = 100 * time.Millisecond
 	ifname   = ""
+	vrf      = ""
 	bind6    = "::"
 	bind4    = "0.0.0.0"
 	size     = uint(56)
@@ -84,6 +85,7 @@ func main() {
 	flag.IntVar(&poolSize, "P", poolSize, "concurrency level")
 	flag.BoolVar(&force, "f", force, "sanity flag needed if you want to ping more than 4096 hosts (/20)")
 	flag.BoolVar(&verbose, "v", verbose, "also print out unreachable addresses")
+	flag.StringVar(&vrf, "vrf", vrf, "VRF")
 	flag.Parse()
 
 	// simple error checking
@@ -121,7 +123,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if p, err := ping.New(bind4, bind6); err != nil {
+	if p, err := ping.New(bind4, bind6, vrf); err != nil {
 		log.Fatal(err)
 	} else {
 		pinger = p

@@ -20,3 +20,5 @@ cmd/ping-test/ping-test
 cmd/ping-test/ping-test.log
 cmd/ping-monitor/ping-monitor
 cmd/pingnet/pingnet
+
+.idea/

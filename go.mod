@@ -1,5 +1,7 @@
 module github.com/digineo/go-ping
 
+go 1.14
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/digineo/go-logwrap v0.0.0-20181106161722-a178c58ea3f0

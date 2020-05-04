@@ -1,10 +1,9 @@
 package ping
 
 import (
+	"net"
 	"os"
 	"sync"
-
-	"golang.org/x/net/icmp"
 )
 
 const (
@@ -30,8 +29,8 @@ type Pinger struct {
 	requests map[uint16]request // currently running requests
 	mtx      sync.RWMutex       // lock for the requests map
 	id       uint16
-	conn4    *icmp.PacketConn
-	conn6    *icmp.PacketConn
+	conn4    net.PacketConn
+	conn6    net.PacketConn
 	write4   sync.Mutex // lock for conn4.WriteTo
 	write6   sync.Mutex // lock for conn6.WriteTo
 	wg       sync.WaitGroup
@@ -39,14 +38,14 @@ type Pinger struct {
 
 // New creates a new Pinger. This will open the raw socket and start the
 // receiving logic. You'll need to call Close() to cleanup.
-func New(bind4, bind6 string) (*Pinger, error) {
+func New(bind4, bind6 string, vrf string) (*Pinger, error) {
 	// open sockets
-	conn4, err := connectICMP("ip4:icmp", bind4)
+	conn4, err := connectICMP("ip4:icmp", bind4, vrf)
 	if err != nil {
 		return nil, err
 	}
 
-	conn6, err := connectICMP("ip6:ipv6-icmp", bind6)
+	conn6, err := connectICMP("ip6:ipv6-icmp", bind6, vrf)
 	if err != nil {
 		if conn4 != nil {
 			conn4.Close()
@@ -86,15 +85,15 @@ func (pinger *Pinger) Close() {
 }
 
 // connectICMP opens a new ICMP connection, if network and address are not empty.
-func connectICMP(network, address string) (*icmp.PacketConn, error) {
+func connectICMP(network, address string, vrf string) (net.PacketConn, error) {
 	if network == "" || address == "" {
 		return nil, nil
 	}
 
-	return icmp.ListenPacket(network, address)
+	return ListenPacket(network, address, vrf)
 }
 
-func (pinger *Pinger) close(conn *icmp.PacketConn) {
+func (pinger *Pinger) close(conn net.PacketConn) {
 	if conn != nil {
 		conn.Close()
 	}

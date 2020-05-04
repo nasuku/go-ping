@@ -19,6 +19,7 @@ var opts = struct {
 	bind6           string
 	dests           []*destination
 	resolverTimeout time.Duration
+	vrf             string
 }{
 	timeout:         1000 * time.Millisecond,
 	interval:        1000 * time.Millisecond,
@@ -27,6 +28,7 @@ var opts = struct {
 	payloadSize:     56,
 	statBufferSize:  50,
 	resolverTimeout: 1500 * time.Millisecond,
+	vrf:             "",
 }
 
 var (
@@ -44,6 +46,7 @@ func main() {
 	flag.DurationVar(&opts.interval, "interval", opts.interval, "polling interval")
 	flag.UintVar(&opts.payloadSize, "s", opts.payloadSize, "size of payload in bytes")
 	flag.UintVar(&opts.statBufferSize, "buf", opts.statBufferSize, "buffer size for statistics")
+	flag.StringVar(&opts.vrf, "vrf", opts.vrf, "VRF")
 	flag.StringVar(&opts.bind4, "bind4", opts.bind4, "IPv4 bind address")
 	flag.StringVar(&opts.bind6, "bind6", opts.bind6, "IPv6 bind address")
 	flag.DurationVar(&opts.resolverTimeout, "resolve", opts.resolverTimeout, "timeout for DNS lookups")
@@ -76,7 +79,7 @@ func main() {
 		}
 	}
 
-	if instance, err := ping.New(opts.bind4, opts.bind6); err == nil {
+	if instance, err := ping.New(opts.bind4, opts.bind6, opts.vrf); err == nil {
 		if instance.PayloadSize() != uint16(opts.payloadSize) {
 			instance.SetPayloadSize(uint16(opts.payloadSize))
 		}
